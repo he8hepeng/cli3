@@ -5,6 +5,19 @@ module.exports = (api, options, rootOptions) => {
       "serve": "vue-cli-service serve",
       "build": "vue-cli-service build",
       "lint": "vue-cli-service lint"
+    },
+    "dependencies": {
+      "axios": "^0.19.0",
+      "core-js": "^2.6.5",
+      "element-ui": "^2.12.0",
+      "file-saver": "^2.0.2",
+      "jquery": "^3.4.1",
+      "lodash": "^4.17.15",
+      "moment": "^2.24.0",
+      "vue": "^2.6.10",
+      "vue-cookies": "^1.5.13",
+      "vue-router": "^3.0.3",
+      "vuex": "^3.0.1"
     }
   })
 
