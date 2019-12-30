@@ -17,20 +17,28 @@ export default {
          * @rerurns   {undefined}  无返回值
          */
         _blob (res, _name = '导出文件', _type = '.xls') {
-          switch (_type) {
-            case ".xls":
-              let _blolType = "application/vnd.ms-excel";
-            case ".doc":
-              let _blolType = "application/msword";
-            case ".docx":
-              let _blolType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-            case ".xlsx":
-              let _blolType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-            case ".ppt":
-              let _blolType = "application/vnd.ms-powerpoint";
-            case ".pptx":
-              let _blolType = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-          }
+          _blob (res, _name = '导出文件', _type = '.xls') {
+            let _blolType
+            switch (_type) {
+              case '.xls':
+                _blolType = 'application/vnd.ms-excel'
+                break
+              case '.doc':
+                _blolType = 'application/msword'
+                break
+              case '.docx':
+                _blolType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                break
+              case '.xlsx':
+                _blolType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                break
+              case '.ppt':
+                _blolType = 'application/vnd.ms-powerpoint'
+                break
+              case '.pptx':
+                _blolType = 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+                break
+            }
           const blob = new Blob([res], {
             type: _blolType
           })
