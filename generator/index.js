@@ -18,7 +18,45 @@ module.exports = (api, options, rootOptions) => {
       "vue-cookies": "^1.5.13",
       "vue-router": "^3.0.3",
       "vuex": "^3.0.1"
-    }
+    },
+    "devDependencies": {
+      "@vue/cli-plugin-babel": "^3.11.0",
+      "@vue/cli-plugin-eslint": "^3.11.0",
+      "@vue/cli-service": "^3.11.0",
+      "@vue/eslint-config-standard": "^4.0.0",
+      "babel-eslint": "^10.0.1",
+      "babel-polyfill": "^6.26.0",
+      "eslint": "^5.16.0",
+      "eslint-plugin-vue": "^5.0.0",
+      "less": "^3.0.4",
+      "less-loader": "^5.0.0",
+      "mockjs": "^1.0.1-beta3",
+      "style-resources-loader": "^1.2.1",
+      "vue-template-compiler": "^2.6.10"
+    },
+    "eslintConfig": {
+      "root": true,
+      "env": {
+        "node": true
+      },
+      "extends": [
+        "plugin:vue/essential",
+        "@vue/standard"
+      ],
+      "rules": {},
+      "parserOptions": {
+        "parser": "babel-eslint"
+      }
+    },
+    "postcss": {
+      "plugins": {
+        "autoprefixer": {}
+      }
+    },
+    "browserslist": [
+      "> 1%",
+      "last 2 versions"
+    ]
   })
 
   // 复制并用 ejs 渲染 `./template` 内所有的文件
