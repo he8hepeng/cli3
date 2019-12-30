@@ -17,7 +17,6 @@ export default {
          * @rerurns   {undefined}  无返回值
          */
         _blob (res, _name = '导出文件', _type = '.xls') {
-          _blob (res, _name = '导出文件', _type = '.xls') {
             let _blolType
             switch (_type) {
               case '.xls':
