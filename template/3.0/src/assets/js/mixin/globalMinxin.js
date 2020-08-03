@@ -2,12 +2,20 @@
  * @Author: hepeng
  * @Date: 2019-10-04 00:10:10
  * @Last Modified by: HePeng
- * @Last Modified time: 2019-12-18 09:27:41
+ * @Last Modified time: 2020-04-26 17:20:37
  */
+import qs from 'qs'
 export default {
   install (Vue) {
     Vue.mixin({
       methods: {
+        /**
+         * 参数格式化
+         * @param {params} params
+         */
+        paramsSerializer (params) {
+          return qs.stringify(params, { arrayFormat: 'repeat' })
+        },
         /**
          * 文件导出
          *
@@ -17,27 +25,29 @@ export default {
          * @rerurns   {undefined}  无返回值
          */
         _blob (res, _name = '导出文件', _type = '.xls') {
-            let _blolType
-            switch (_type) {
-              case '.xls':
-                _blolType = 'application/vnd.ms-excel'
-                break
-              case '.doc':
-                _blolType = 'application/msword'
-                break
-              case '.docx':
-                _blolType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-                break
-              case '.xlsx':
-                _blolType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                break
-              case '.ppt':
-                _blolType = 'application/vnd.ms-powerpoint'
-                break
-              case '.pptx':
-                _blolType = 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
-                break
-            }
+          let _blolType
+          switch (_type) {
+            case '.xls':
+              _blolType = 'application/vnd.ms-excel'
+              break
+            case '.doc':
+              _blolType = 'application/msword'
+              break
+            case '.docx':
+              _blolType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+              break
+            case '.xlsx':
+              _blolType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+              break
+            case '.ppt':
+              _blolType = 'application/vnd.ms-powerpoint'
+              break
+            case '.pptx':
+              _blolType = 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+              break
+            case '.zip':
+              _blolType = 'application/octet-stream;charset=utf-8'
+          }
           const blob = new Blob([res], {
             type: _blolType
           })

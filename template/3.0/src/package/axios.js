@@ -7,6 +7,7 @@ import store from '../store/index' // 通过vuex 来存储 token等信息
 import axios from 'axios'
 let loadingInstance // 请求遮罩
 let modelIndex = 0 // 并发 蒙层计数
+let repeatToken = false // 是否tap
 // 自定义判断元素类型JS
 function toType (obj) {
   return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
@@ -32,8 +33,7 @@ function filterNull (o) {
  *
  * @param {any} method 方法
  * @param {any} url 地址
- * @param {any} data 实体类body
- * @param {any} params url数据
+ * @param {any} params 数据
  * @param {any} success 正确回调
  * @param {any} failure 错误回调
  */
@@ -51,18 +51,20 @@ function apiAxios (method, url, data, params, success, failure) {
       'X-HTTP-Method-Override': method === 'postG' ? 'get' : '',
       'Content-Type': 'application/json'
     }
-  }).then(function (res) {
-    if (res.status === 204) {
-      res.data = {
-        message: '成功'
-      }
-    }
-    success(res.data.data)
-  }).catch(function (err) {
-    if (failure) {
-      failure(err)
-    }
   })
+    .then(function (res) {
+      // if (res.status === 204) {
+      //   res.data = {
+      //     message: "成功"
+      //   };
+      // }
+      success(res.data.data.content)
+    })
+    .catch(function (err) {
+      if (failure) {
+        failure(err)
+      }
+    })
 }
 
 /**
@@ -129,23 +131,18 @@ export default {
 }
 // 添加一个请求拦截器
 axios.interceptors.request.use(config => {
-  // 为了解决 promise.all的 多个参数 无法计算遮罩 增加遮罩计数器 by--刘春阳 徐速成
+  // 为了解决 promise.all的 多个参数 无法计算遮罩 增加遮罩计数器
   if (modelIndex === 0) {
     loadingInstance = Loading.service({
       lock: true,
-      text: '努力拉取中 ~>_<~',
+      text: '努力拉取中',
       background: 'rgba(0, 0, 0, 0.7)'
     })
   }
   modelIndex++
-  config.headers.common['token'] = store.getters.getCookie // 每次发送之前 从vuex拿token携带
-  config.headers.common["User-Info"] = store.getters.getUserInfo // 将用户信息等数据 放到header中发给后台 by--绍奎涛
-  if (config.method === "post" || config.method === "postG") { // 发现ie下有从缓存拿数据的bug 所以在所有请求加上时间戳 by--刘春阳
-    // config.data = {
-    //   ...config.data,
-    //   _t: Date.parse(new Date()) / 1000
-    // }
-  } else {
+  config.headers.common['token'] = store.getters.getCookie() // 每次发送之前 从vuex拿token携带
+  // config.headers.common['User-Info'] = store.getters.getUserInfo // 将用户信息等数据 放到header中发给后台
+  if (config.method === 'get') { // 发现ie下有从缓存拿数据的bug 所以在所有请求加上时间戳
     config.params = {
       _t: Date.parse(new Date()) / 1000,
       ...config.params
@@ -156,68 +153,71 @@ axios.interceptors.request.use(config => {
   return Promise.reject(error)
 })
 // 添加一个响应拦截器
-axios.interceptors.response.use(response => {
-  loadingInstance.close()
-  // 与后台沟通 204没有实体类 但前台需要实体类用以 promise回调 so 我们自己搞 按照各业务 可以删除或修改
-  if (response.status === 204) {
-    response.data = {
-      content: []
+axios.interceptors.response.use(
+  response => {
+    closeLoding()
+    // 与后台沟通 204没有实体类 但前台需要实体类用以 promise回调 so 我们自己搞 按照各业务 可以删除或修改
+    if (response.status === 204) {
+      response.data = {
+        content: []
+      }
     }
+    return response
+  },
+  error => {
+    closeLoding()
+    if (error.response !== undefined) {
+      if (
+        error.config.responseType === 'blob' &&
+        error.response.data.type === 'application/json'
+      ) {
+        let reader = new FileReader()
+        reader.readAsText(error.response.data, 'utf-8')
+        reader.onload = e => {
+          Message.error(JSON.parse(reader.result))
+        }
+      } else {
+        Message.error(error.response.data.message)
+      }
+    }
+    return Promise.reject(error)
   }
-  return response
-}, err => {
+)
+
+function closeLoding () {
   modelIndex--
   if (modelIndex === 0) {
-    loadingInstance.close()
-  }
-  let errMsg = ''
-  if (err && err.response.status) {
-    switch (err.response.status) {
-      case 401:
-        errMsg = '登录状态失效，请重新登录'
-        // localStorage.removeItem('tsToken')
-        // router.push('/login')
-        break
-      case 403:
-        errMsg = '拒绝访问'
-        break
-
-      case 408:
-        errMsg = '请求超时'
-        break
-
-      case 500:
-        errMsg = '服务器内部错误'
-        break
-
-      case 501:
-        errMsg = '服务未实现'
-        break
-
-      case 502:
-        errMsg = '网关错误'
-        break
-
-      case 503:
-        errMsg = '服务不可用'
-        break
-
-      case 504:
-        errMsg = '网关超时'
-        break
-
-      case 505:
-        errMsg = 'HTTP版本不受支持'
-        break
-
-      default:
-        errMsg = err.response.data.msg
-        break
+    if (loadingInstance) {
+      if (repeatToken) {
+        repeatToken = false
+        // validateToken()
+      }
+      loadingInstance.close()
     }
-  } else {
-    errMsg = err
+  }
+}
+
+// 校验token 请维护自己项目的 路径地址
+function validateToken () {
+  apiAxios('GET', 'xxxx', {}, {
+    _timer: new Date().getTime()
+  }, function (res) {
+    store.dispatch('setToken', res)
+    repeatToken = true
+  }, function (err) {
+    redirectToLogin(err.response.data)
+  })
+}
+// 重定向至登录
+function redirectToLogin (url) {
+  // Message({ message: '权限已过期，请重新登录！', type: 'error', duration: 1500 })
+  store.dispatch('setToken', '')
+  // 兼容部分IE11
+  if (!window.location.origin) {
+    window.location.origin = window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '')
   }
 
-  Message.error(errMsg)
-  return Promise.reject(errMsg)
-})
+  setTimeout(() => {
+    window.location.href = url + '/logout?redirect=' + window.location.origin
+  }, 1300)
+}

@@ -30,8 +30,8 @@ export default {
       message5: {
         a: 2
       },
-      message6: () => {
-        console.log(this.$data)
+      message6: (res) => {
+        console.log(this.$data, res)
       }
     }
   },
@@ -68,8 +68,8 @@ export default {
     ...mapActions(['setUser']),
     asyncPromise () {
       return new Promise((resolve, reject) => {
-        this.axios.get(this.url['userInfo'], { a: 2 }, { c: 4 }, res => {
-          resolve(res.content)
+        this.axios.get(this.url.userInfo, {}, { a: 2 }, res => {
+          resolve(res)
         })
       })
     },
@@ -104,7 +104,7 @@ export default {
 .about {
   .size(100%;100%);
   .b_r(4px);
-  .box_shadow(rgba(0, 0, 0, 0.3));
+  // .box_shadow(rgba(0, 0, 0, 0.3));
   padding: 10px;
 }
 

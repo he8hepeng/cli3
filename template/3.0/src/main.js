@@ -1,12 +1,18 @@
+/*
+ * @Author: HePeng
+ * @Date: 2020-04-27 09:39:53
+ * @Last Modified by: hepeng
+ * @Last Modified time: 2020-07-10 21:00:57
+ */
+import 'babel-polyfill'
 import Vue from 'vue'
 import App from './App.vue'
-import 'babel-polyfill'
 import router from './router/index.js'
 import store from './store/index.js'
 import axios from './package/axios.js'
 // 引入全局mixin 方法
 import globalMixin from './assets/js/mixin/globalMinxin.js'
-import fileSaver from "file-saver";
+import fileSaver from 'file-saver'
 // 引入element
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
@@ -22,6 +28,8 @@ import './package/mock/mock'
 import _url from './package/config/url.js'
 // 引入公共的util工具
 import util from './package/util/util.js'
+// 全局组件
+import './components/common/index.js'
 
 Vue.use(globalMixin)
 Vue.prototype._ = _
